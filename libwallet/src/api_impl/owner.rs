@@ -1045,6 +1045,7 @@ where
 	let mut result = update_outputs(wallet_inst.clone(), keychain_mask, update_all)?;
 
 	if !result {
+		println!("Updater thread unable to contact node");
 		if let Some(ref s) = status_send_channel {
 			let _ = s.send(StatusMessage::UpdateWarning(
 				"Updater Thread unable to contact node".to_owned(),
@@ -1255,6 +1256,7 @@ where
 	match updater::refresh_outputs(&mut **w, keychain_mask, &parent_key_id, update_all) {
 		Ok(_) => Ok(true),
 		Err(e) => {
+			println!("Update::refresh_putputs had error {}", e);
 			if let ErrorKind::InvalidKeychainMask = e.kind() {
 				return Err(e);
 			}

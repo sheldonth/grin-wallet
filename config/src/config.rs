@@ -143,7 +143,7 @@ pub fn initial_setup_wallet(
 			fs::create_dir_all(p)?;
 		}
 	}
-	// Use config file if current directory if it exists, .grin home otherwise
+	// Use config file in current directory if it exists, .grin home otherwise
 	let (path, config) = if let Some(p) = check_config_current_dir(WALLET_CONFIG_FILE_NAME) {
 		let mut path = p.clone();
 		path.pop();

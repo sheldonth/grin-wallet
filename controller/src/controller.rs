@@ -77,9 +77,9 @@ fn check_middleware(
 		}
 	}
 }
-
+//@SHELDON
 /// initiate the tor listener
-fn init_tor_listener<L, C, K>(
+pub fn init_tor_listener<L, C, K>(
 	wallet: Arc<Mutex<Box<dyn WalletInst<'static, L, C, K> + 'static>>>,
 	keychain_mask: Arc<Mutex<Option<SecretKey>>>,
 	addr: &str,
@@ -103,10 +103,10 @@ where
 	let onion_address = OnionV3Address::from_private(&sec_key.0)
 		.map_err(|e| ErrorKind::TorConfig(format!("{:?}", e).into()))?;
 	let sp_address = SlatepackAddress::try_from(onion_address.clone())?;
-	warn!(
-		"Starting Tor Hidden Service for API listener at address {}, binding to {}",
-		onion_address, addr
-	);
+	//println!(
+	//"Starting Tor Hidden Service for API listener at address {}, binding to {}",
+	//onion_address, addr
+	//);
 	tor_config::output_tor_listener_config(&tor_dir, addr, &vec![sec_key])
 		.map_err(|e| ErrorKind::TorConfig(format!("{:?}", e).into()))?;
 	// Start TOR process
@@ -260,6 +260,7 @@ where
 	C: NodeClient + 'static,
 	K: Keychain + 'static,
 {
+	println!("FOREIGN LISTENER {} {} {:?}", addr, test_mode, tor_config);
 	// Check if wallet has been opened first
 	{
 		let mut w_lock = wallet.lock();

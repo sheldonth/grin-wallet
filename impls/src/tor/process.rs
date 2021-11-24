@@ -99,6 +99,17 @@ pub struct TorProcess {
 	pub process: Option<Child>,
 }
 
+impl std::fmt::Display for TorProcess {
+	fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+		write!(
+			f,
+			"tor cmd: {} torrc_path {}",
+			self.tor_cmd,
+			self.torrc_path.clone().unwrap_or("".to_string())
+		)
+	}
+}
+
 impl TorProcess {
 	pub fn new() -> Self {
 		TorProcess {
@@ -175,7 +186,7 @@ impl TorProcess {
 			.args(&self.args)
 			.stdin(Stdio::piped())
 			.stdout(Stdio::piped())
-			.stderr(Stdio::piped())
+            .stderr(Stdio::piped())
 			.spawn()
 			.map_err(|err| {
 				let msg = format!("TOR executable (`{}`) not found. Please ensure TOR is installed and on the path: {:?}", TOR_EXE_NAME, err);
@@ -197,6 +208,7 @@ impl TorProcess {
 		let completion_percent = self.completion_percent;
 
 		let (stdout_tx, stdout_rx) = channel();
+
 		let stdout_timeout_tx = stdout_tx.clone();
 
 		let timer = timer::Timer::new();
@@ -240,6 +252,7 @@ impl TorProcess {
 			> 0
 		{
 			{
+				//println!("{}", raw_line);
 				if raw_line.len() < timestamp_len + 1 {
 					return Err(Error::InvalidLogLine);
 				}
