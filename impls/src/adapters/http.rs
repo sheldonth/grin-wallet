@@ -30,11 +30,11 @@ const TOR_CONFIG_PATH: &str = "tor/sender";
 
 #[derive(Clone)]
 pub struct HttpSlateSender {
-	base_url: String,
-	use_socks: bool,
-	socks_proxy_addr: Option<SocketAddr>,
-	tor_config_dir: String,
-	process: Option<Arc<tor_process::TorProcess>>,
+	pub base_url: String,
+	pub use_socks: bool,
+	pub socks_proxy_addr: Option<SocketAddr>,
+	pub tor_config_dir: String,
+	pub process: Option<Arc<tor_process::TorProcess>>,
 }
 
 impl HttpSlateSender {
@@ -71,12 +71,14 @@ impl HttpSlateSender {
 	pub fn launch_tor(&mut self) -> Result<(), Error> {
 		// set up tor send process if needed
 		let mut tor = tor_process::TorProcess::new();
+		println!("PROCESS {} {}", self.process.is_none(), self.use_socks);
+		println!("TOR CONFIG DIR {}", &self.tor_config_dir);
 		if self.use_socks && self.process.is_none() {
 			let tor_dir = format!(
 				"{}{}{}",
 				&self.tor_config_dir, MAIN_SEPARATOR, TOR_CONFIG_PATH
 			);
-			info!(
+			print!(
 				"Starting TOR Process for send at {:?}",
 				self.socks_proxy_addr
 			);
@@ -99,6 +101,7 @@ impl HttpSlateSender {
 
 	/// Check version of the listening wallet
 	pub fn check_other_version(&mut self, url: &str) -> Result<SlateVersion, Error> {
+		println!("URL {}", url);
 		self.launch_tor()?;
 		let req = json!({
 			"jsonrpc": "2.0",
@@ -164,9 +167,10 @@ impl HttpSlateSender {
 		IN: Serialize,
 	{
 		let client =
-			if self.use_socks {
+			if !self.use_socks {
 				Client::new()
 			} else {
+				println!("Use socks proxy");
 				Client::with_socks_proxy(self.socks_proxy_addr.ok_or_else(|| {
 					ClientErrorKind::Internal("No socks proxy address set".into())
 				})?)

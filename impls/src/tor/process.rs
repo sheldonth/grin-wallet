@@ -252,7 +252,7 @@ impl TorProcess {
 			> 0
 		{
 			{
-				//println!("{}", raw_line);
+				println!("{}", raw_line);
 				if raw_line.len() < timestamp_len + 1 {
 					return Err(Error::InvalidLogLine);
 				}

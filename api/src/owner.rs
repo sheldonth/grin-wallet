@@ -692,7 +692,7 @@ where
 							let result = self.post_tx(keychain_mask, &ret_slate, sa.fluff);
 							match result {
 								Ok(_) => {
-									info!("Tx sent ok",);
+									println!("Tx sent ok",);
 									return Ok(ret_slate);
 								}
 								Err(e) => {
@@ -706,7 +706,10 @@ where
 							return Ok(ret_slate);
 						}
 					}
-					Ok(None) => Ok(slate),
+					Ok(None) => {
+						println!("Slate Not Sent!");
+						Ok(slate)
+					}
 					Err(_) => Ok(slate),
 				}
 			}
@@ -2347,7 +2350,7 @@ pub fn try_slatepack_sync_workflow(
 			return Ok(());
 		}
 		Err(e) => {
-			debug!(
+			println!(
 				"Send ({}): Could not send Slate via {}: {}",
 				method_str, method_str, e
 			);
@@ -2360,6 +2363,7 @@ pub fn try_slatepack_sync_workflow(
 		Ok(address) => {
 			let tor_addr = OnionV3Address::try_from(&address).unwrap();
 			// Try sending to the destination via TOR
+			println!("Address ok {}", address);
 			let sender = match tor_sender {
 				None => {
 					if test_mode {
@@ -2387,19 +2391,30 @@ pub fn try_slatepack_sync_workflow(
 				}
 			};
 			if let Some(s) = sender {
-				warn!("Attempting to send transaction via TOR");
+				println!("Attempting to send transaction via TOR");
+
+				//pub struct HttpSlateSender {
+				//base_url: String,
+				//use_socks: bool,
+				//socks_proxy_addr: Option<SocketAddr>,
+				//tor_config_dir: String,
+				//process: Option<Arc<tor_process::TorProcess>>,
+				//}
+				println!("FUCK: {}", s.socks_proxy_addr.unwrap().to_string());
+				println!("TITS: {}", s.base_url.to_string());
+				println!("COCK: {} {}", s.use_socks, s.tor_config_dir);
 				match send_sync(s, "TOR") {
 					Ok(_) => return Ok(Some(ret_slate)),
 					Err(e) => {
-						debug!("Unable to send via TOR: {}", e);
-						warn!("Unable to send transaction via TOR");
+						println!("Unable to send via TOR: {}", e);
+						println!("Unable to send transaction via TOR");
 					}
 				}
 			}
 		}
 		Err(e) => {
-			debug!("Send (TOR): Destination is not SlatepackAddress {:?}", e);
-			warn!("Destination is not a valid Slatepack address. Will output Slatepack.")
+			println!("Send (TOR): Destination is not SlatepackAddress {:?}", e);
+			println!("Destination is not a valid Slatepack address. Will output Slatepack.")
 		}
 	}
 
