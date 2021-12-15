@@ -71,8 +71,6 @@ impl HttpSlateSender {
 	pub fn launch_tor(&mut self) -> Result<(), Error> {
 		// set up tor send process if needed
 		let mut tor = tor_process::TorProcess::new();
-		println!("PROCESS {} {}", self.process.is_none(), self.use_socks);
-		println!("TOR CONFIG DIR {}", &self.tor_config_dir);
 		if self.use_socks && self.process.is_none() {
 			let tor_dir = format!(
 				"{}{}{}",
@@ -101,7 +99,6 @@ impl HttpSlateSender {
 
 	/// Check version of the listening wallet
 	pub fn check_other_version(&mut self, url: &str) -> Result<SlateVersion, Error> {
-		println!("URL {}", url);
 		self.launch_tor()?;
 		let req = json!({
 			"jsonrpc": "2.0",
@@ -170,7 +167,6 @@ impl HttpSlateSender {
 			if !self.use_socks {
 				Client::new()
 			} else {
-				println!("Use socks proxy");
 				Client::with_socks_proxy(self.socks_proxy_addr.ok_or_else(|| {
 					ClientErrorKind::Internal("No socks proxy address set".into())
 				})?)
@@ -217,7 +213,7 @@ impl SlateSender for HttpSlateSender {
 			}),
 		};
 
-		trace!("Sending receive_tx request: {}", req);
+		//println!("Sending receive_tx request: {}", req);
 
 		let res: String = self.post(&url_str, None, req).map_err(|e| {
 			let report = format!(
@@ -228,7 +224,7 @@ impl SlateSender for HttpSlateSender {
 		})?;
 
 		let res: Value = serde_json::from_str(&res).unwrap();
-		trace!("Response: {}", res);
+		//println!("Response: {}", res);
 		if res["error"] != json!(null) {
 			let report = format!(
 				"Posting transaction slate: Error: {}, Message: {}",
@@ -240,7 +236,7 @@ impl SlateSender for HttpSlateSender {
 
 		let slate_value = res["result"]["Ok"].clone();
 
-		trace!("slate_value: {}", slate_value);
+		//println!("slate_value: {}", slate_value);
 		let slate = Slate::deserialize_upgrade(&serde_json::to_string(&slate_value).unwrap())
 			.map_err(|e| {
 				error!("Error deserializing response slate: {}", e);

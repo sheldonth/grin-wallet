@@ -120,12 +120,11 @@ impl Client {
 		headers.insert(CONTENT_TYPE, HeaderValue::from_static("application/json"));
 
 		let mut builder = ClientBuilder::new()
-			.timeout(Duration::from_secs(20))
+			.timeout(Duration::from_secs(7))
 			.use_rustls_tls()
 			.default_headers(headers);
 
 		if let Some(s) = socks_proxy_addr {
-			println!("Adding socks proxy {} {}", s.ip(), s.port());
 			let proxy = Proxy::all(&format!("socks5h://{}:{}", s.ip(), s.port()))
 				.map_err(|e| ErrorKind::Internal(format!("Unable to create proxy: {}", e)))?;
 			builder = builder.proxy(proxy);

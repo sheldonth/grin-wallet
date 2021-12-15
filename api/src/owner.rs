@@ -80,7 +80,7 @@ where
 	updater_messages: Arc<Mutex<Vec<StatusMessage>>>,
 	/// Optional TOR configuration, holding address of sender and
 	/// data directory
-	tor_config: Mutex<Option<TorConfig>>,
+	pub tor_config: Mutex<Option<TorConfig>>,
 }
 
 impl<L, C, K> Owner<L, C, K>
@@ -680,7 +680,7 @@ where
 					&slate,
 					&sa.dest,
 					tc,
-					None,
+					None, // todo: share an HTTPSlateSender
 					false,
 					self.doctest_mode,
 				);
@@ -2363,7 +2363,6 @@ pub fn try_slatepack_sync_workflow(
 		Ok(address) => {
 			let tor_addr = OnionV3Address::try_from(&address).unwrap();
 			// Try sending to the destination via TOR
-			println!("Address ok {}", address);
 			let sender = match tor_sender {
 				None => {
 					if test_mode {
@@ -2391,8 +2390,6 @@ pub fn try_slatepack_sync_workflow(
 				}
 			};
 			if let Some(s) = sender {
-				println!("Attempting to send transaction via TOR");
-
 				//pub struct HttpSlateSender {
 				//base_url: String,
 				//use_socks: bool,
@@ -2400,9 +2397,6 @@ pub fn try_slatepack_sync_workflow(
 				//tor_config_dir: String,
 				//process: Option<Arc<tor_process::TorProcess>>,
 				//}
-				println!("FUCK: {}", s.socks_proxy_addr.unwrap().to_string());
-				println!("TITS: {}", s.base_url.to_string());
-				println!("COCK: {} {}", s.use_socks, s.tor_config_dir);
 				match send_sync(s, "TOR") {
 					Ok(_) => return Ok(Some(ret_slate)),
 					Err(e) => {

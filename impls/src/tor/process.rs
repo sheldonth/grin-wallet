@@ -296,7 +296,6 @@ impl TorProcess {
 impl Drop for TorProcess {
 	// kill the child
 	fn drop(&mut self) {
-		debug!("Dropping TOR process");
 		self.kill().unwrap_or(());
 	}
 }
