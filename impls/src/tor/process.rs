@@ -284,9 +284,9 @@ impl TorProcess {
 
 	pub fn kill(&mut self) -> Result<(), Error> {
 		if let Some(ref mut process) = self.process {
-			Ok(process
-				.kill()
-				.map_err(|err| Error::Process(format!("{}", err)))?)
+			let _ = process.kill();
+			let _ = process.wait();
+			Ok(())
 		} else {
 			Err(Error::ProcessNotStarted)
 		}
